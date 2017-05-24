@@ -9,25 +9,25 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
-import javax.swing.JTextField;
 public class Simulation extends Canvas implements Runnable{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7661068758602793816L;
-	
-	private JTextField size;
 	private BufferedImage outline;
-	private Handler handler;
 	private boolean running = false;
 	private Thread thread;
 	private Graphics g;
+	private int xpos = -100, ypos = -100, scale = 0, t = 0;
+	private Random random = new Random();
+	private Window window;
 	
-	public Simulation(){
-		size = new JTextField("Enter Size");
+	public Simulation(Window window){
+		this.window = window;
 		try{
 			outline = ImageIO.read(getClass().getResource("outline.png"));
 		}catch (IOException e){
@@ -36,12 +36,8 @@ public class Simulation extends Canvas implements Runnable{
 	this.addMouseListener(new MouseListener() {
 			
 			public void mouseClicked(MouseEvent e) {
-				// TODO Auto-generated method stub
-				int xpos = e.getX();
-				int ypos = e.getY();
-				g.setColor(Color.RED);
-				g.drawOval(xpos, ypos, 20, 20);
-				System.out.println("drawn");
+				xpos = e.getX();
+				ypos = e.getY();
 			}
 
 			public void mouseEntered(MouseEvent e) {}
@@ -51,7 +47,7 @@ public class Simulation extends Canvas implements Runnable{
 		});
 		
 	}
-	public void start(int size){
+	public void start(){
 		if(running){
 			return;
 			}
@@ -97,14 +93,31 @@ public class Simulation extends Canvas implements Runnable{
 			init(g);
 			
 			strat.show();
-			g.dispose();
+			//g.dispose();
 		}
 	}
 	
 	public void init(Graphics g){
 		int w = outline.getWidth();
 		int h = outline.getHeight();
-		
+		scale = window.getScale();
+		g.setColor(Color.RED);//Draws Red Simulation Area
+		g.fillOval(xpos, ypos, 10* scale, 10* scale);
+
+		if(t < 200){
+			t++;
+		}else if (window.hasStarted()==true){
+
+			g.fillOval(xpos, ypos, 1* scale, 1* scale);
+			t = 0;
+			xpos = xpos+1;
+			ypos = ypos+1;
+		}else if (window.hasStarted()==false){
+			g.fillOval(xpos, ypos, 10* scale, 10* scale);
+			t=0;
+		}
+
+	
 		for(int i = 0; i< w; i++){
 			for(int k = 0; k<h; k++){
 				int pixel = outline.getRGB(i, k);
@@ -112,7 +125,7 @@ public class Simulation extends Canvas implements Runnable{
 					
 					if(red == 255 ){
 						g.setColor(Color.GRAY);
-						g.fillRect(i*16, k*16, 16, 16);
+						g.fillRect(i*13, k*13, 13, 13);
 					}; 
 				}
 			}
