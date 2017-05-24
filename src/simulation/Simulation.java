@@ -102,18 +102,18 @@ public class Simulation extends Canvas implements Runnable{
 		int h = outline.getHeight();
 		scale = window.getScale();
 		g.setColor(Color.RED);//Draws Red Simulation Area
-		g.fillOval(xpos, ypos, 10* scale, 10* scale);
+		g.fillOval(xpos, ypos, 6* scale, 6* scale);
 
 		if(t < 200){
 			t++;
 		}else if (window.hasStarted()==true){
 
-			g.fillOval(xpos, ypos, 1* scale, 1* scale);
+			g.fillOval(xpos, ypos, 6* scale, 6* scale);
 			t = 0;
-			xpos = xpos+1;
-			ypos = ypos+1;
+			xpos = xpos-window.getSpeed();
+			ypos = ypos-window.getSpeed();
 		}else if (window.hasStarted()==false){
-			g.fillOval(xpos, ypos, 10* scale, 10* scale);
+			g.fillOval(xpos, ypos, 6* scale, 6* scale);
 			t=0;
 		}
 
