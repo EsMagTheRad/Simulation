@@ -101,33 +101,51 @@ public class Simulation extends Canvas implements Runnable{
 		int w = outline.getWidth();
 		int h = outline.getHeight();
 		scale = window.getScale();
-		g.setColor(Color.RED);//Draws Red Simulation Area
-		g.fillOval(xpos, ypos, 6* scale, 6* scale);
-
-		if(t < 200){
-			t++;
-		}else if (window.hasStarted()==true){
-
-			g.fillOval(xpos, ypos, 6* scale, 6* scale);
-			t = 0;
-			xpos = xpos-window.getSpeed();
-			ypos = ypos-window.getSpeed();
-		}else if (window.hasStarted()==false){
-			g.fillOval(xpos, ypos, 6* scale, 6* scale);
-			t=0;
-		}
-
 	
 		for(int i = 0; i< w; i++){
 			for(int k = 0; k<h; k++){
 				int pixel = outline.getRGB(i, k);
-				int red = (pixel >> 16) & 0xff;;
+				int red = (pixel >> 16) & 0xff;
+				int green = (pixel >> 8) & 0xff;
+				int blue = (pixel) & 0xff;
 					
-					if(red == 255 ){
+					if(red == 255 && green == 0 && blue == 0 ) {
 						g.setColor(Color.GRAY);
 						g.fillRect(i*13, k*13, 13, 13);
-					}; 
+					}
+					else if(red == 0 && green == 0 && blue == 255) {
+						g.setColor(Color.lightGray);
+						g.fillRect(i*13, k*13, 13, 13);
+					}
+					else if(red == 0 && green == 255 && blue == 0 && window.isSurveillance()==true) {
+						g.setColor(Color.pink);
+						g.fillRect(i*13, k*13, 13, 13);
+					}
+					else if(red == 255 && green == 255 && blue == 255 && window.isTestingWindow() == true) {
+						g.setColor(Color.cyan);
+						g.fillRect(i*13, k*13, 13, 13);
+					}
+					else if(red == 96 && green == 96 && blue == 96 && window.isTestingDoor() == true) {
+						g.setColor(Color.BLUE);
+						g.fillRect(i*13, k*13, 13, 13);
+					}
 				}
+			g.setColor(Color.RED);//Draws Red Simulation Area
+			g.fillOval(xpos, ypos, 6* scale, 6* scale);
+
+			if(t < 10000){
+				t++;
+			}else if (window.hasStarted()==true){
+
+				g.fillOval(xpos, ypos, 6* scale, 6* scale);
+
+				xpos = xpos-window.getSpeed();
+				ypos = ypos-window.getSpeed();
+				t = 0;
+			}else if (window.hasStarted()==false){
+				g.fillOval(xpos, ypos, 6* scale, 6* scale);
+				t=0;
+			}
 			}
 	}
 }

@@ -1,7 +1,6 @@
 package simulation;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -9,30 +8,38 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Hashtable;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
-import javax.swing.SpringLayout.Constraints;
 
 public class Window extends JFrame{
 	
-	private JTextArea testArea = new JTextArea("Enter size");
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4091618198331241697L;
 	private JSlider sizeadjust, speedadjust;
-	private Container controlcontainer = new Container();
-	private boolean started;
+	private Container controlcontainer, checkboxContainer;
+	private boolean started, windowtesting, surveillancetesting, doortesting;
 	private Hashtable lableTable, lableTable2;
+	private JCheckBox windowBox, surveillanceBox, doorBox;
 	
 	public Window(int w, int h, String title){
 		started = false;
+		windowtesting = false;
+		doortesting = false;
+		surveillancetesting = false;
+		controlcontainer = new Container();
 		JButton b1 = new JButton("START");
 		sizeadjust = new JSlider();
 		speedadjust = new JSlider();
 		lableTable = new Hashtable();
 		lableTable2 = new Hashtable();
 		
+		//Init all contents of the head- Container
 		b1.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -79,6 +86,50 @@ public class Window extends JFrame{
 		controlcontainer.add(speedadjust);
 		controlcontainer.add(sizeadjust);
 		
+		//init all content of the east- container
+		checkboxContainer = new Container();
+		checkboxContainer.setLayout(new GridLayout(1, 3));
+		windowBox = new JCheckBox("Alarm windows");
+		windowBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (windowtesting == false){
+					windowtesting = true;
+				}else{
+					windowtesting = false;
+				}
+			}
+		});
+		surveillanceBox = new JCheckBox("Motion detector");
+		surveillanceBox.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (surveillancetesting == false){
+					surveillancetesting = true;
+				}else{
+					surveillancetesting = false;
+				}
+			}
+		});
+		doorBox = new JCheckBox("Alarm door");
+		doorBox.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (doortesting == false){
+					doortesting = true;
+				}else{
+					doortesting = false;
+				}
+			}
+		});
+		checkboxContainer.add(windowBox);
+		checkboxContainer.add(surveillanceBox);
+		checkboxContainer.add(doorBox);
+		
+		
+		
 		Simulation sim = new Simulation(this);
 		sim.setPreferredSize(new Dimension(w, h));
 		sim.setMaximumSize(new Dimension(w, h));
@@ -86,9 +137,9 @@ public class Window extends JFrame{
 		
 		
 		this.getContentPane().setLayout(new BorderLayout());
-		//frame.add(testArea, BorderLayout.EAST);
 		this.add(sim, BorderLayout.WEST);
 		this.add(controlcontainer, BorderLayout.NORTH);
+		this.add(checkboxContainer, BorderLayout.SOUTH);
 		
 		this.pack();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -110,7 +161,17 @@ public class Window extends JFrame{
 	public boolean hasStarted(){
 		return started;
 	}
+	public boolean isTestingWindow(){
+		return windowtesting;
+	}
+	public boolean isSurveillance(){
+		return surveillancetesting;
+	}	
+	public boolean isTestingDoor(){
+		return doortesting;
+	}
 	public static void main(String[] args){
 		new Window(920, 620, "SIMULATION");
 	}
+	
 }
