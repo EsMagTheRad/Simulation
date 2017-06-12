@@ -6,6 +6,10 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Hashtable;
 
 import javax.swing.JButton;
@@ -14,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
+import javax.swing.plaf.FileChooserUI;
 
 public class Window extends JFrame{
 	
@@ -26,6 +31,7 @@ public class Window extends JFrame{
 	private boolean started, windowtesting, surveillancetesting, doortesting;
 	private Hashtable lableTable, lableTable2;
 	private JCheckBox windowBox, surveillanceBox, doorBox;
+	private int windowcount = 0, doorcount = 0, propertycount = 0;
 	
 	public Window(int w, int h, String title){
 		started = false;
@@ -33,7 +39,8 @@ public class Window extends JFrame{
 		doortesting = false;
 		surveillancetesting = false;
 		controlcontainer = new Container();
-		JButton b1 = new JButton("START");
+		JButton b1 = new JButton("AUTO");
+		JButton save = new JButton("Save");
 		sizeadjust = new JSlider();
 		speedadjust = new JSlider();
 		lableTable = new Hashtable();
@@ -43,13 +50,21 @@ public class Window extends JFrame{
 		b1.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (b1.getText()=="START") {
+				if (b1.getText()=="AUTO") {
 				started = true;
-				b1.setText("PAUSE");
+				b1.setText("WASD");
 				} else {
 					started = false;
-					b1.setText("START");
+					b1.setText("AUTO");
 				}
+			}
+		});
+		save.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				writeStringToFile("door: " + doorcount + " window: " + windowcount + " property: " + propertycount + " total: " + (windowcount+propertycount+doorcount));
+				
 			}
 		});
 		
@@ -66,25 +81,26 @@ public class Window extends JFrame{
 		lableTable.put(new Integer(6), new JLabel("Objectsize"));
 		sizeadjust.setLabelTable(lableTable);
 		
-		speedadjust.setMajorTickSpacing(10);
+		speedadjust.setMajorTickSpacing(6);
 		speedadjust.setMinorTickSpacing(1);
-		speedadjust.setMaximum(10);
+		speedadjust.setMaximum(6);
 		speedadjust.setMinimum(1);
 		speedadjust.setPaintTicks(true);
 		speedadjust.setPaintLabels(true);
 		speedadjust.setValue(1);
 		
 		lableTable2.put(new Integer(1), new JLabel("Slow"));
-		lableTable2.put(new Integer(10), new JLabel("Fast"));
-		lableTable2.put(new Integer(6), new JLabel("ObjectSpeed"));
+		lableTable2.put(new Integer(6), new JLabel("Fast"));
+		lableTable2.put(new Integer(3), new JLabel("ObjectSpeed"));
 		speedadjust.setLabelTable(lableTable2);
 		
-		GridLayout settingsLayout = new GridLayout(1, 3);
+		GridLayout settingsLayout = new GridLayout(1, 4);
 		settingsLayout.setHgap(25);
 		controlcontainer.setLayout(settingsLayout);
 		controlcontainer.add(b1);
 		controlcontainer.add(speedadjust);
 		controlcontainer.add(sizeadjust);
+		controlcontainer.add(save);
 		
 		//init all content of the east- container
 		checkboxContainer = new Container();
@@ -154,8 +170,8 @@ public class Window extends JFrame{
 		int size = sizeadjust.getValue();
 		return size;
 	}
-	public int getSpeed(){
-		int speed = speedadjust.getValue();
+	public float getSpeed(){
+		float speed = speedadjust.getValue()*0.2f;
 		return speed;
 	}
 	public boolean hasStarted(){
@@ -171,7 +187,35 @@ public class Window extends JFrame{
 		return doortesting;
 	}
 	public static void main(String[] args){
-		new Window(920, 620, "SIMULATION");
+		new Window(1024, 752, "SIMULATION");
+	}
+	static void writeStringToFile(String data){
+		BufferedWriter writer = null;
+		try
+		{
+		    writer = new BufferedWriter( new FileWriter( "Chartdata.txt"));
+		    writer.write( data);
+
+		}catch ( IOException e){e.printStackTrace();}
+		finally
+		{
+		    try
+		    {
+		        if ( writer != null)
+		        writer.close( );
+		    } catch ( IOException e){e.printStackTrace();}
+		}
+
+		
+	}
+	public void setWindowcount(int count){
+		windowcount = windowcount + count;
+	}
+	public void setPropertycount(int count){
+		propertycount = propertycount + count;
+	}
+	public void setDoorcount(int count){
+		doorcount = doorcount + count;
 	}
 	
 }

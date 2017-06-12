@@ -5,22 +5,19 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 
 
-public class Wall {
-	private int x, y;
-	public Wall(int x, int y){
-		this.x = x;
-		this.y = y;
-	}
-	public void render(Graphics g) {
-		g.setColor(Color.GRAY);
-		g.fillRect((int)x, (int)y, 32, 32);
-		g.setColor(Color.BLACK);
-		g.drawRect((int)x, (int)y, 32, 32);
+public class Wall extends Collideable {
+
+	public Wall(float x, float y, float id, float scale){
+		super(x, y, id, scale);
 	}
 
 	public Rectangle getBounds() {
+		return new Rectangle( (int)(x*13),(int) (y*13),(int) 13,(int) 13);
 
-		return new Rectangle((int)x, (int)y, 32, 32);
+	}
+	public void render(Graphics g){
+		g.setColor(Color.GRAY);
+		g.fillRect((int) (x*13),(int) (y*13),(int) 13,(int) 13);
 	}
 	
 
