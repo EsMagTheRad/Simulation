@@ -8,10 +8,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Scanner;
 
+import javax.print.attribute.TextSyntax;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -28,16 +33,32 @@ public class Window extends JFrame{
 	private static final long serialVersionUID = 4091618198331241697L;
 	private JSlider sizeadjust, speedadjust;
 	private Container controlcontainer, checkboxContainer;
-	private boolean started, windowtesting, surveillancetesting, doortesting;
+	private boolean started, windowtesting, surveillancetesting, doortesting, nextMonth;
 	private Hashtable lableTable, lableTable2;
 	private JCheckBox windowBox, surveillanceBox, doorBox;
-	private int windowcount = 0, doorcount = 0, propertycount = 0;
+	static int windowcount = 0, doorcount = 0, propertycount = 0;
+	private  int month;
+	Scanner scanner;
+	
+	//DELETE
+	static int[] testArray  = new int[12];
 	
 	public Window(int w, int h, String title){
+		
+		
+		loadActivations();
+		loadMonth();
+		
+		//TODO Loadintegers from file
+		propertycount = 0;
+		windowcount = 0;
+		doorcount = 0;
+		
 		started = false;
 		windowtesting = false;
 		doortesting = false;
 		surveillancetesting = false;
+		nextMonth = false;
 		controlcontainer = new Container();
 		JButton b1 = new JButton("AUTO");
 		JButton save = new JButton("Save");
@@ -45,6 +66,8 @@ public class Window extends JFrame{
 		speedadjust = new JSlider();
 		lableTable = new Hashtable();
 		lableTable2 = new Hashtable();
+		
+		
 		
 		//Init all contents of the head- Container
 		b1.addActionListener(new ActionListener() {
@@ -59,12 +82,42 @@ public class Window extends JFrame{
 				}
 			}
 		});
+		// TODO Override changed int
 		save.addActionListener(new ActionListener() {
-			
-			@Override
 			public void actionPerformed(ActionEvent e) {
-				writeStringToFile("door: " + doorcount + " window: " + windowcount + " property: " + propertycount + " total: " + (windowcount+propertycount+doorcount));
 				
+				nextMonth = true;
+				month = month+1;
+				if(month >12){	month = 1; }
+	
+				File file = new File("Month.txt");
+				if (file.exists());{
+					file.delete();
+					System.out.println("new");;
+				}
+				BufferedWriter writer = null;
+				try {
+					  writer = new BufferedWriter( new FileWriter( "Month.txt"));
+					    writer.write(String.valueOf(month));
+
+					}
+					catch ( IOException e1)
+					{
+					}
+					finally
+					{
+					    try
+					    {
+					        if ( writer != null)
+					        writer.close( );
+					    }
+					    catch ( IOException e1)
+					    {
+					    }
+				    }
+				
+				writeStringToFile();
+				System.out.println("called:" + month);
 			}
 		});
 		
@@ -166,6 +219,7 @@ public class Window extends JFrame{
 		
 		sim.start();
 	}
+	
 	public int getScale(){
 		int size = sizeadjust.getValue();
 		return size;
@@ -186,36 +240,75 @@ public class Window extends JFrame{
 	public boolean isTestingDoor(){
 		return doortesting;
 	}
-	public static void main(String[] args){
-		new Window(1024, 752, "SIMULATION");
-	}
-	static void writeStringToFile(String data){
-		BufferedWriter writer = null;
-		try
-		{
-		    writer = new BufferedWriter( new FileWriter( "Chartdata.txt"));
-		    writer.write( data);
-
-		}catch ( IOException e){e.printStackTrace();}
-		finally
-		{
-		    try
-		    {
-		        if ( writer != null)
-		        writer.close( );
-		    } catch ( IOException e){e.printStackTrace();}
+	
+	private void writeStringToFile(){
+		
+		int totalActivations = windowcount + doorcount + propertycount;
+		testArray[month-1] = totalActivations;
+		
+		File file = new File("Activations.txt");
+		if (file.exists());{
+			file.delete();
 		}
-
+		try {
+			 FileWriter f_writer = new FileWriter(file, true);
+		    
+			 	for (int i = 0; i < testArray.length; i++) {
+		                  f_writer.write(testArray[i]+ " ");
+		            }
+		        f_writer.close();
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
 		
 	}
+	public void setActivationList(int[] list){
+		testArray = list;
+	}
+	
 	public void setWindowcount(int count){
 		windowcount = windowcount + count;
+		
 	}
 	public void setPropertycount(int count){
 		propertycount = propertycount + count;
+		System.out.println("" + propertycount);
 	}
 	public void setDoorcount(int count){
 		doorcount = doorcount + count;
 	}
 	
+	public void loadActivations(){
+		try {
+			scanner = new Scanner(new File("Activations.txt"));
+			testArray = new int [12];
+			int i = 0;
+			while(scanner.hasNextInt())
+			{
+			     testArray[i++] = scanner.nextInt();
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void loadMonth(){
+		try {
+			scanner = new Scanner(new File("Month.txt"));
+			month = scanner.nextInt();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public boolean isNextMonth(){
+		return nextMonth;
+	}
+	public void setNextMonth(boolean nextMonth){
+		this.nextMonth = nextMonth;
+	}
+	
+
+
 }

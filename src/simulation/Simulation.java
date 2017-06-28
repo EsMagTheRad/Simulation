@@ -9,10 +9,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.Scanner;
+
 import javax.imageio.ImageIO;
 public class Simulation extends Canvas implements Runnable{
 
@@ -30,8 +34,9 @@ public class Simulation extends Canvas implements Runnable{
 	private Random random;
 	private Window window;
 	private LinkedList<Collideable> objectList;
-	private String timeStamp = "";
+	private String timeStamp = "", currentMonth = new MonthToString().getmonth();
 	private int time = (int) System.currentTimeMillis(), delme = 0;
+	private int [] activations;
 	
 	public Simulation(Window window){
 		random = new Random();
@@ -76,7 +81,7 @@ public class Simulation extends Canvas implements Runnable{
 			public void mouseClicked(MouseEvent e) {
 					xpos = e.getX();
 					ypos = e.getY();
-				}
+			}
 	
 				public void mouseEntered(MouseEvent e) {}
 				public void mouseExited(MouseEvent e) {}
@@ -126,19 +131,17 @@ public class Simulation extends Canvas implements Runnable{
 		int h = outline.getHeight();
 		for(int i = 0; i< w; i++){
 			for(int k = 0; k<h; k++){
-				int pixel = outline.getRGB(i, k);
-				int red = (pixel >> 16) & 0xff;
-				int green = (pixel >> 8) & 0xff;
-				int blue = (pixel) & 0xff;
-				if(red == 255 && green == 0 && blue == 0) {objectList.add(new Wall(i, k, 1, 1));}
-				if(red == 0 && green == 0 && blue == 255) {objectList.add(new Floor(i, k, 5, 1));}
-				if(red == 0 && green == 255 && blue == 0) {objectList.add(new PropertyAlarm(i, k, 4, 1));}
-				if(red == 255 && green == 255 && blue == 255) {objectList.add(new Alarmwindow(i, k, 2, 1));}
-				if(red == 96 && green == 96 && blue == 96) {objectList.add(new Door(i, k, 3, 1));}
+
+				if(outline.getRGB(i, k) == -65536)		 {objectList.add(new Wall(i, k, 1, 1));}
+				if(outline.getRGB(i, k) == -16776961) 	 {objectList.add(new Floor(i, k, 5, 1));}
+				if(outline.getRGB(i, k) == -16711936)	 {objectList.add(new PropertyAlarm(i, k, 4, 1));}
+				if(outline.getRGB(i, k) == -1)			 {objectList.add(new Alarmwindow(i, k, 2, 1));}
+				if(outline.getRGB(i, k) == -10461088)    {objectList.add(new Door(i, k, 3, 1));}
 			}
 		}
 	}
 	private void render(){
+		
 		this.createBufferStrategy(3);
 		boolean running = true;
 		
@@ -153,7 +156,7 @@ public class Simulation extends Canvas implements Runnable{
 			g.drawString("Fenster: Light_Blue", 800, 630);
 			g.drawString("Grundstueck: Pink", 800, 660);
 			g.drawString("Tuere: White", 800, 690);
-			g.drawString("Letzte Aktivierung: " + timeStamp , 70,660);
+			g.drawString("Letzte Aktivierung: " + timeStamp  + " Monat: " + currentMonth, 70,660);
 			g.drawString("Anzahl Aktivierungen Grundstueck: " + sensoractivationProperty + "  Fenster: " + sensoractivationWindow + "  Tuere: " + sensoractivationDoory, 70, 690);
 
 			
@@ -165,6 +168,16 @@ public class Simulation extends Canvas implements Runnable{
 				if (tempObject.getId() == 2 && window.isTestingWindow()){tempObject.render(g);}
 				if (tempObject.getId() == 4 && window.isSurveillance()){tempObject.render(g);}
 				if (tempObject.getId() == 3 && window.isTestingDoor()){tempObject.render(g);}
+			}
+			if(window.isNextMonth() == true){
+				
+				
+				window.setNextMonth(false);
+				currentMonth = new MonthToString().getmonth();
+				System.out.println(currentMonth);
+				sensoractivationDoory = 0;
+				sensoractivationProperty = 0;
+				sensoractivationWindow = 0;
 			}
 			
 			SimulatedObject simobject = new SimulatedObject(xpos, ypos, 0, 0);
@@ -241,7 +254,6 @@ public class Simulation extends Canvas implements Runnable{
 	public void setInfoText(Graphics g, Collideable tempobject){	
 		g.drawImage(exclamation, (int)(tempobject.getX()*13), (int)(tempobject.getY()*13), null);
 		timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new java.util.Date());
-		System.out.println(time - (int) System.currentTimeMillis());
 		
 		if (time - (int) System.currentTimeMillis() <= -3000){
 			alarm = true;
@@ -249,17 +261,22 @@ public class Simulation extends Canvas implements Runnable{
 		}
 		if (tempobject.getId() == 2 && alarm == true){
 			sensoractivationWindow++;
-			window.setWindowcount(sensoractivationWindow);
+			window.setWindowcount(1);
 			alarm = false;
 		}else if (tempobject.getId() == 3 && alarm == true) {
 			sensoractivationDoory++;
-			window.setDoorcount(sensoractivationDoory);
+			window.setDoorcount(1);
 			alarm = false;
 		}else if (tempobject.getId() == 4 && alarm == true) {
 			sensoractivationProperty++;
-			window.setPropertycount(sensoractivationProperty);
+			window.setPropertycount(1);
 			alarm = false;
 		}
+	}
+	
+	
+	public int[] getActivationList(){
+		return activations;
 	}
 	
 }
