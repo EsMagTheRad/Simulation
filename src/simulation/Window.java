@@ -11,19 +11,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
-
-import javax.print.attribute.TextSyntax;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
-import javax.swing.JTextArea;
-import javax.swing.plaf.FileChooserUI;
 
 public class Window extends JFrame{
 	
@@ -32,6 +26,7 @@ public class Window extends JFrame{
 	 */
 	private static final long serialVersionUID = 4091618198331241697L;
 	private JSlider sizeadjust, speedadjust;
+	JButton save, b1;
 	private Container controlcontainer, checkboxContainer;
 	private boolean started, windowtesting, surveillancetesting, doortesting, nextMonth;
 	private Hashtable lableTable, lableTable2;
@@ -49,7 +44,6 @@ public class Window extends JFrame{
 		loadActivations();
 		loadMonth();
 		
-		//TODO Loadintegers from file
 		propertycount = 0;
 		windowcount = 0;
 		doorcount = 0;
@@ -60,8 +54,8 @@ public class Window extends JFrame{
 		surveillancetesting = false;
 		nextMonth = false;
 		controlcontainer = new Container();
-		JButton b1 = new JButton("AUTO");
-		JButton save = new JButton("Save");
+		b1 = new JButton("Move Automatic");
+		save = new JButton("Save Data for: " + new MonthToString().getMonthFromInt(month));
 		sizeadjust = new JSlider();
 		speedadjust = new JSlider();
 		lableTable = new Hashtable();
@@ -73,12 +67,12 @@ public class Window extends JFrame{
 		b1.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (b1.getText()=="AUTO") {
+				if (b1.getText()=="Move Automatic") {
 				started = true;
 				b1.setText("WASD");
 				} else {
 					started = false;
-					b1.setText("AUTO");
+					b1.setText("Move Automatic");
 				}
 			}
 		});
@@ -88,12 +82,12 @@ public class Window extends JFrame{
 				
 				nextMonth = true;
 				month = month+1;
+				save.setText("Save Data for: " + new MonthToString().getMonthFromInt(month));
 				if(month >12){	month = 1; }
 	
 				File file = new File("Month.txt");
 				if (file.exists());{
 					file.delete();
-					System.out.println("new");;
 				}
 				BufferedWriter writer = null;
 				try {
@@ -308,7 +302,5 @@ public class Window extends JFrame{
 	public void setNextMonth(boolean nextMonth){
 		this.nextMonth = nextMonth;
 	}
-	
-
 
 }

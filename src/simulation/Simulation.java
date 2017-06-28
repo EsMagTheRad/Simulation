@@ -156,7 +156,7 @@ public class Simulation extends Canvas implements Runnable{
 			g.drawString("Fenster: Light_Blue", 800, 630);
 			g.drawString("Grundstueck: Pink", 800, 660);
 			g.drawString("Tuere: White", 800, 690);
-			g.drawString("Letzte Aktivierung: " + timeStamp  + " Monat: " + currentMonth, 70,660);
+			g.drawString("Monat: " + currentMonth, 70,660);
 			g.drawString("Anzahl Aktivierungen Grundstueck: " + sensoractivationProperty + "  Fenster: " + sensoractivationWindow + "  Tuere: " + sensoractivationDoory, 70, 690);
 
 			
@@ -275,8 +275,5 @@ public class Simulation extends Canvas implements Runnable{
 	}
 	
 	
-	public int[] getActivationList(){
-		return activations;
-	}
 	
 }
